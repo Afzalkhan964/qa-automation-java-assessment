@@ -32,7 +32,7 @@ public class ShoppingUiTests extends BaseUiTest {
 
         String pageText = driver.findElement(By.tagName("body")).getText().toLowerCase();
         Assert.assertTrue(pageText.contains("shop by category") ||
-                        driver.findElements(By.cssSelector("#gh-shop-a, [aria-label*='Shop by category']")).size() > 0,
+                        driver.findElements(By.xpath("//span[text()='Shop by category']")).size() > 0,
                 "Expected a key shopping navigation element on the home page.");
         screenshot("01-home-page");
     }
@@ -57,22 +57,39 @@ public class ShoppingUiTests extends BaseUiTest {
         screenshot("02-category-page");
         System.out.println("Navigated through category link: " + label + " -> " + driver.getCurrentUrl());
     }
-
     @Test
     public void productSearchShowsResultsAndScreenshot() throws IOException {
+
         driver.get(BASE_URL);
+
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-        WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(
-                By.cssSelector("input[placeholder*='Search'], input[aria-label*='Search'], #gh-ac")));
+
+        // Locate the search box using XPath
+        WebElement searchBox = wait.until(
+            ExpectedConditions.elementToBeClickable(
+                By.xpath("//input[@id='gh-ac' or contains(@placeholder,'Search') or contains(@aria-label,'Search')]")
+            )
+        );
+
+        // Search for a product
         searchBox.clear();
         searchBox.sendKeys("laptop");
         searchBox.sendKeys(Keys.ENTER);
 
-        wait.until(d -> d.getCurrentUrl().toLowerCase().contains("_nkw") ||
-                d.findElements(By.cssSelector(".s-item, .srp-results, [class*='result']")).size() > 0);
-        String pageText = driver.findElement(By.tagName("body")).getText().toLowerCase();
-        Assert.assertTrue(pageText.contains("laptop") || driver.getCurrentUrl().toLowerCase().contains("laptop"),
-                "Expected search results to reflect the search term.");
+        // Wait until product results are visible
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+            By.xpath("//li[contains(@class,'s-item')]")
+        ));
+
+        // Verify the search results
+        String pageText = driver.findElement(By.xpath("//body"))
+                                .getText()
+                                .toLowerCase();
+
+        Assert.assertTrue(
+            pageText.contains("laptop"),
+            "Expected search results to reflect the search term."
+        );
         screenshot("03-search-results");
     }
 }
