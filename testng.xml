@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="QA Automation Assessment" verbose="1">
+    <test name="UI and API Tests">
+        <classes>
+            <class name="com.afzal.qa.ui.ShoppingUiTests"/>
+            <class name="com.afzal.qa.api.PetstoreApiTests"/>
+        </classes>
+    </test>
+</suite>
